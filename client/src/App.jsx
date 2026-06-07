@@ -15,10 +15,9 @@ export default function App() {
   const [error, setError] = useState("");
 
   // drag and drop tracking
-  const dragIndex = useRef(null);    // index of item being dragged
-  const dragOverIndex = useRef(null); // index of item being dragged over
+  const dragIndex = useRef(null);
+  const dragOverIndex = useRef(null);
 
-  // fetch whenever filter or search changes
   useEffect(() => {
     setLoading(true);
     const timer = setTimeout(fetchTasks, 300);
@@ -33,7 +32,11 @@ export default function App() {
 
       const res = await fetch(`${API}?${params}`);
       const data = await res.json();
-      setTasks(data.tasks);
+
+      // sort by the "order" field saved in DB so drag-drop position persists on refresh
+      const sorted = (data.tasks || []).sort((a, b) => a.order - b.order);
+
+      setTasks(sorted);
       setStats(data.stats);
       setError("");
     } catch {
@@ -72,7 +75,6 @@ export default function App() {
     fetchTasks();
   }
 
-  // toggle star on a task
   async function handleStar(id) {
     const task = tasks.find((t) => t._id === id);
     await fetch(`${API}/${id}`, {
@@ -83,26 +85,26 @@ export default function App() {
     fetchTasks();
   }
 
-  // ── Drag and Drop handlers ──────────────────────────────
+  // ── Drag and Drop ────────────────────────────────────────
   function handleDragStart(index) {
     dragIndex.current = index;
   }
 
   function handleDragOver(e, index) {
-    e.preventDefault(); // needed to allow drop
+    e.preventDefault();
     dragOverIndex.current = index;
   }
 
   async function handleDrop() {
-    // reorder the tasks array locally
+    // reorder locally first so UI feels instant
     const newTasks = [...tasks];
     const draggedItem = newTasks.splice(dragIndex.current, 1)[0];
     newTasks.splice(dragOverIndex.current, 0, draggedItem);
-
-    // update UI immediately so it feels fast
     setTasks(newTasks);
 
-    // tell backend the new order
+    // save the new order to backend
+    // backend stores an "order" number on each task
+    // so when we fetch next time, we sort by order and get same position
     const orderedIds = newTasks.map((t) => t._id);
     await fetch(`${API}/reorder`, {
       method: "PATCH",
@@ -119,7 +121,6 @@ export default function App() {
     dragOverIndex.current = null;
   }
 
-  // stats for the summary boxes
   const activeCount = stats.active || 0;
   const completedCount = stats.completed || 0;
   const total = activeCount + completedCount;
@@ -129,17 +130,12 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-50">
 
-      {/* ── Gradient Header ─────────────────────────────── */}
-<div className="bg-gradient-to-r from-sky-700 via-sky-500 to-blue-300 px-6 py-3">
-          <div className="max-w-5xl mx-auto">
-          <h1 className="text-2xl font-600 text-white tracking-tight">
-            My Tasks
-          </h1>
-          <p className="text-indigo-200 text-sm mt-1">
-            Stay organised. Get things done.
-          </p>
+      {/* Gradient Header */}
+      <div className="bg-gradient-to-r from-sky-700 via-sky-500 to-blue-300 px-6 py-3">
+        <div className="max-w-5xl mx-auto">
+          <h1 className="text-2xl font-600 text-white tracking-tight">My Tasks</h1>
+          <p className="text-indigo-200 text-sm mt-1">Stay organised. Get things done.</p>
 
-          {/* progress bar inside header */}
           {total > 0 && (
             <div className="mt-4">
               <div className="flex justify-between text-xs text-indigo-100 mb-2">
@@ -157,43 +153,35 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── Main content ────────────────────────────────── */}
+      {/* Main content */}
       <div className="max-w-5xl mx-auto px-6 py-8">
 
-        {/* error banner */}
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">
             ⚠ {error}
           </div>
         )}
 
-        {/* ── Summary boxes (top right area) ────────────── */}
+        {/* Summary boxes */}
         <div className="grid grid-cols-3 gap-2 mb-4">
-
-          {/* Total tasks */}
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
             <p className="text-xs text-gray-400 uppercase tracking-wider font-500 mb-2">Total</p>
             <p className="text-3xl font-700 text-gray-800">{total}</p>
             <p className="text-xs text-gray-400 mt-1">all tasks</p>
           </div>
-
-          {/* Active tasks */}
           <div className="bg-white rounded-2xl border border-indigo-100 shadow-sm p-5">
             <p className="text-xs text-indigo-400 uppercase tracking-wider font-500 mb-2">Active</p>
             <p className="text-3xl font-700 text-indigo-600">{activeCount}</p>
             <p className="text-xs text-gray-400 mt-1">remaining</p>
           </div>
-
-          {/* Completed tasks */}
           <div className="bg-white rounded-2xl border border-emerald-100 shadow-sm p-5">
             <p className="text-xs text-emerald-500 uppercase tracking-wider font-500 mb-2">Done</p>
             <p className="text-3xl font-700 text-emerald-600">{completedCount}</p>
             <p className="text-xs text-gray-400 mt-1">completed</p>
           </div>
-
         </div>
 
-        {/* ── Two column layout ──────────────────────────── */}
+        {/* Two column layout */}
         <div className="grid grid-cols-[300px_1fr] gap-6 items-start">
 
           {/* Left: form */}
@@ -205,13 +193,11 @@ export default function App() {
             />
           </div>
 
-          {/* Right: search + filters + list */}
+          {/* Right: list */}
           <div>
 
-            {/* search + filter bar */}
+            {/* search + filters */}
             <div className="flex flex-col gap-3 mb-5">
-
-              {/* search */}
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg leading-none select-none">⌕</span>
                 <input
@@ -231,7 +217,6 @@ export default function App() {
                 )}
               </div>
 
-              {/* filter buttons */}
               <div className="flex gap-2">
                 {["all", "active", "completed"].map((f) => (
                   <button
@@ -249,7 +234,6 @@ export default function App() {
                   </button>
                 ))}
 
-                {/* starred filter */}
                 <button
                   onClick={() => setFilter(filter === "starred" ? "all" : "starred")}
                   className={`
@@ -271,7 +255,6 @@ export default function App() {
                 <div className="w-7 h-7 border-2 border-gray-200 border-t-indigo-500 rounded-full animate-spin" />
               </div>
 
-            /* empty state */
             ) : tasks.filter(t => filter === "starred" ? t.starred : true).length === 0 ? (
               <div className="text-center py-14 border border-dashed border-gray-200 rounded-2xl bg-white">
                 <div className="text-3xl mb-3">
@@ -288,7 +271,6 @@ export default function App() {
                 )}
               </div>
 
-            /* task list */
             ) : (
               <ul className="flex flex-col gap-2">
                 {tasks

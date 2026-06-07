@@ -2,13 +2,18 @@ import { useState, useEffect } from "react";
 
 export default function TaskForm({ onSubmit, editTask, onCancel }) {
 
-  // form fields
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [titleError, setTitleError] = useState("");
 
-  // when editTask changes - fill the form with that task's data
+  // get today's date in YYYY-MM-DD format for the min attribute on date input
+  // this prevents selecting any date before today
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  // check if selected due date is exactly today - to show "last day" warning
+  const isDueToday = dueDate === todayStr;
+
   useEffect(() => {
     if (editTask) {
       setTitle(editTask.title);
@@ -20,7 +25,6 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
         setDueDate("");
       }
     } else {
-      // not editing - reset everything
       setTitle("");
       setDescription("");
       setDueDate("");
@@ -28,7 +32,6 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
     }
   }, [editTask]);
 
-  // called when form is submitted
   async function handleSubmit(e) {
     e.preventDefault();
 
@@ -93,9 +96,17 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
         <input
           type="date"
           value={dueDate}
+          min={todayStr}  
           onChange={(e) => setDueDate(e.target.value)}
           className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:border-indigo-400 focus:bg-white transition"
         />
+
+        {/* show warning if due date is today */}
+        {isDueToday && (
+          <p className="text-xs text-amber-500 mt-1.5 font-500">
+            ⚠ Today is the last day to complete this task!
+          </p>
+        )}
       </div>
 
       {/* Buttons */}
@@ -107,7 +118,6 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
           {editTask ? "Save changes" : "Add task"}
         </button>
 
-        {/* cancel only shows when editing */}
         {editTask && (
           <button
             type="button"
