@@ -135,7 +135,7 @@ App runs at: `http://localhost:5173`
 
 ### TaskFlow Dashboard
 
-![TaskFlow Dashboard](public/ss.png)
+![TaskFlow Dashboard](./client/public/ss.png)
 
 ## Author
 
