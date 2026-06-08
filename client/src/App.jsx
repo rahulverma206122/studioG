@@ -182,7 +182,7 @@ export default function App() {
         </div>
 
         {/* Two column layout */}
-        <div className="grid grid-cols-[300px_1fr] gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6 items-start">
 
           {/* Left: form */}
           <div className="sticky top-6">
