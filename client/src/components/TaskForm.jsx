@@ -6,12 +6,12 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [titleError, setTitleError] = useState("");
+  const [dateError, setDateError] = useState(""); // new: date validation error
 
-  // get today's date in YYYY-MM-DD format for the min attribute on date input
-  // this prevents selecting any date before today
+  // today in YYYY-MM-DD format
   const todayStr = new Date().toISOString().split("T")[0];
 
-  // check if selected due date is exactly today - to show "last day" warning
+  // check if selected due date is exactly today
   const isDueToday = dueDate === todayStr;
 
   useEffect(() => {
@@ -29,8 +29,24 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
       setDescription("");
       setDueDate("");
       setTitleError("");
+      setDateError("");
     }
   }, [editTask]);
+
+  // validate date when user picks one
+  function handleDateChange(e) {
+    const picked = e.target.value;
+
+    // if picked date is before today, reject it
+    if (picked && picked < todayStr) {
+      setDateError("Please select today or a future date");
+      setDueDate(""); // clear the invalid date
+      return;
+    }
+
+    setDateError("");
+    setDueDate(picked);
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -40,7 +56,14 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
       return;
     }
 
+    // block submit if somehow a past date slipped through
+    if (dueDate && dueDate < todayStr) {
+      setDateError("Please select today or a future date");
+      return;
+    }
+
     setTitleError("");
+    setDateError("");
 
     await onSubmit({
       title: title.trim(),
@@ -96,13 +119,18 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
         <input
           type="date"
           value={dueDate}
-          min={todayStr}  
-          onChange={(e) => setDueDate(e.target.value)}
+          min={todayStr}
+          onChange={handleDateChange}
           className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:border-indigo-400 focus:bg-white transition"
         />
 
-        {/* show warning if due date is today */}
-        {isDueToday && (
+        {/* past date error */}
+        {dateError && (
+          <p className="text-xs text-red-400 mt-1.5">{dateError}</p>
+        )}
+
+        {/* today warning */}
+        {isDueToday && !dateError && (
           <p className="text-xs text-amber-500 mt-1.5 font-500">
             ⚠ Today is the last day to complete this task!
           </p>
