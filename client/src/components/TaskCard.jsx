@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function TaskCard({
+export default function TaskCard({  
   task, onToggle, onEdit, onDelete, onStar,
   onDragStart, onDragOver, onDrop, onDragEnd
 }) {
@@ -35,17 +35,14 @@ export default function TaskCard({
 
   return (
     <>
-      {/* ── Delete confirmation popup ───────────────────────── */}
       {confirming && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
 
-          {/* dark overlay - click to cancel */}
           <div
             className="absolute inset-0 bg-black/40"
             onClick={() => setConfirming(false)}
           />
 
-          {/* popup box */}
           <div className="relative bg-white rounded-2xl shadow-xl p-6 w-80 mx-4 z-10">
             <div className="text-center">
 
@@ -79,7 +76,6 @@ export default function TaskCard({
         </div>
       )}
 
-      {/* ── Task card ───────────────────────────────────────── */}
       <li
         draggable
         onDragStart={onDragStart}
@@ -90,39 +86,32 @@ export default function TaskCard({
           group bg-white border rounded-xl px-4 py-3 shadow-sm
           cursor-grab active:cursor-grabbing transition-all duration-150
           ${task.completed ? "opacity-60" : ""}
-          ${isOverdue ? "border-l-4 border-l-amber-400 border-gray-200" : "border-gray-200"}
+          ${isOverdue ? "border-l-4 border-l-red-400 border-gray-200" : "border-gray-200"}
           ${task.starred ? "ring-1 ring-amber-300" : ""}
           hover:shadow-md hover:border-gray-300
         `}
       >
         <div className="flex items-start gap-3">
 
-          {/* drag handle */}
-          <span className="text-gray-300 mt-0.5 cursor-grab select-none text-lg leading-none opacity-0 group-hover:opacity-100 transition">
-            ⠿
-          </span>
-
-          {/* checkbox */}
           <button
             onClick={() => onToggle(task._id)}
             className={`
               mt-0.5 w-5 h-5 min-w-[20px] rounded-md border-2 flex items-center justify-center transition
               ${task.completed
                 ? "bg-emerald-500 border-emerald-500 text-white"
-                : "border-gray-300 hover:border-indigo-400"
+                : "border-gray-400 hover:border-indigo-600"
               }
             `}
           >
             {task.completed && (
-              <svg viewBox="0 0 12 10" fill="none" width="10" height="10">
-                <path d="M1 5l3.5 3.5L11 1" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            )}
+                <span className="text-xs font-bold">
+                  ✓
+                </span>
+              )}
           </button>
 
-          {/* task content */}
           <div className="flex-1 min-w-0">
-            <p className={`text-sm font-500 ${task.completed ? "line-through text-gray-400" : "text-gray-800"}`}>
+            <p className={`text-sm font-500 ${task.completed ? "line-through text-gray-500" : "text-gray-800"}`}>
               {task.title}
             </p>
 
@@ -133,16 +122,15 @@ export default function TaskCard({
             {task.dueDate && (
               <p className={`text-xs mt-1 font-500 ${
                 isOverdue ? "text-red-500" :
-                isDueToday ? "text-amber-500" :
+                isDueToday ? "text-red-400" :
                 "text-gray-400 font-400"
               }`}>
-                {isOverdue ? "⚠ Overdue · " : isDueToday ? "⏰ Last day today · " : "📅 "}
+                {isOverdue ? " Overdue " : isDueToday ? " Last day today " : "Due on "}
                 {formatDate(task.dueDate)}
               </p>
             )}
           </div>
 
-          {/* action buttons */}
           <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
             <button
               onClick={() => onStar(task._id)}
@@ -157,7 +145,7 @@ export default function TaskCard({
               title="Edit"
               className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-gray-100 transition text-gray-400 hover:text-gray-700"
             >
-              <span style={{ display: "inline-block", transform: "rotate(-20deg)", fontSize: "1rem" }}>✎</span>
+              ✎
             </button>
 
             <button

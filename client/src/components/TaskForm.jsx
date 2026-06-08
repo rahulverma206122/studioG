@@ -8,10 +8,8 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
   const [titleError, setTitleError] = useState("");
   const [dateError, setDateError] = useState(""); // new: date validation error
 
-  // today in YYYY-MM-DD format
   const todayStr = new Date().toISOString().split("T")[0];
 
-  // check if selected due date is exactly today
   const isDueToday = dueDate === todayStr;
 
   useEffect(() => {
@@ -33,14 +31,12 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
     }
   }, [editTask]);
 
-  // validate date when user picks one
   function handleDateChange(e) {
     const picked = e.target.value;
 
-    // if picked date is before today, reject it
     if (picked && picked < todayStr) {
       setDateError("Please select today or a future date");
-      setDueDate(""); // clear the invalid date
+      setDueDate(""); 
       return;
     }
 
@@ -56,7 +52,6 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
       return;
     }
 
-    // block submit if somehow a past date slipped through
     if (dueDate && dueDate < todayStr) {
       setDateError("Please select today or a future date");
       return;
@@ -83,7 +78,6 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
         {editTask ? "Edit task" : "New task"}
       </h2>
 
-      {/* Title */}
       <div className="mb-4">
         <label className="block text-xs font-500 text-gray-500 mb-1.5">
           Title <span className="text-red-400">*</span>
@@ -93,7 +87,7 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
           value={title}
           placeholder="What needs to be done?"
           onChange={(e) => setTitle(e.target.value)}
-          autoFocus
+          autoFocus  
           className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-indigo-400 focus:bg-white transition"
         />
         {titleError && (
@@ -101,7 +95,6 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
         )}
       </div>
 
-      {/* Description */}
       <div className="mb-4">
         <label className="block text-xs font-500 text-gray-500 mb-1.5">Description</label>
         <textarea
@@ -113,7 +106,6 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
         />
       </div>
 
-      {/* Due date */}
       <div className="mb-5">
         <label className="block text-xs font-500 text-gray-500 mb-1.5">Due date</label>
         <input
@@ -124,12 +116,10 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
           className="w-63 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:border-indigo-400 focus:bg-white transition"
         />
 
-        {/* past date error */}
         {dateError && (
           <p className="text-xs text-red-400 mt-1.5">{dateError}</p>
         )}
 
-        {/* today warning */}
         {isDueToday && !dateError && (
           <p className="text-xs text-amber-500 mt-1.5 font-500">
              Today is the last day to complete this task!
@@ -137,7 +127,6 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
         )}
       </div>
 
-      {/* Buttons */}
       <div className="flex gap-2">
         <button
           type="submit"
