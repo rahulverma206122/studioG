@@ -121,7 +121,7 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
           value={dueDate}
           min={todayStr}
           onChange={handleDateChange}
-          className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:border-indigo-400 focus:bg-white transition"
+          className="w-63 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:border-indigo-400 focus:bg-white transition"
         />
 
         {/* past date error */}
@@ -132,7 +132,7 @@ export default function TaskForm({ onSubmit, editTask, onCancel }) {
         {/* today warning */}
         {isDueToday && !dateError && (
           <p className="text-xs text-amber-500 mt-1.5 font-500">
-            ⚠ Today is the last day to complete this task!
+             Today is the last day to complete this task!
           </p>
         )}
       </div>
