@@ -185,7 +185,7 @@ export default function App() {
         <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6 items-start">
 
           {/* Left: form */}
-          <div className="sticky top-6">
+          <div className="md:sticky md:top-6">
             <TaskForm
               onSubmit={editTask ? handleUpdate : handleCreate}
               editTask={editTask}
